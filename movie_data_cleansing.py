@@ -22,6 +22,13 @@ class DataProcessor:
         pattern = re.compile(pattern)
         return re.sub(pattern, '', text)
 
+    def __remove_stop_words(self, tokenized_text, stopwords):
+        return [word for word in tokenized_text if not word in stopwords]
+
+    def __list_to_string(self, s):
+        str = " "
+        return str.join(s)
+
     # Cleanse and process data
 
     def process_data(self):
@@ -38,8 +45,9 @@ class DataProcessor:
         # Tokenize processed text
         tokenized = nltk.word_tokenize(fourth_processed)
         english_stopwords = nltk.corpus.stopwords.words('english')
-        removed_stopwords = [word for word in tokenized if not word in english_stopwords]
-        print(removed_stopwords)
+        removed_stopwords = self.__remove_stop_words(tokenized, english_stopwords)
+        string = self.__list_to_string(removed_stopwords)
+        print(string)
 
 
 # Read CSV data
