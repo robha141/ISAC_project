@@ -2,9 +2,10 @@
 
 .idea/
 
-# CS
+# VS
 
 .vs/
+ISAC_project.pyproj
 
 # Data
 
