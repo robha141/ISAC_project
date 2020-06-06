@@ -2,6 +2,11 @@
 
 .idea/
 
+# VS
+
+.vs/
+ISAC_project.pyproj
+
 # Data
 
 IMDB Dataset.csv
