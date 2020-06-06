@@ -1,6 +1,7 @@
 import csv
 import re
 import nltk
+import os
 
 
 class DataProcessor:
@@ -8,13 +9,13 @@ class DataProcessor:
     def __init__(self, review, sentiment):
         self.review = review
         self.sentiment = sentiment
-        self.sentimentNumber = 0
+        self.sentiment_number = 0
         self.processed_data = ''
 
     # update value, if positive == 1, otherwise 0
 
     def __value_to_number(self):
-        self.sentimentNumber = 1 if (self.sentiment == 'positive') else 0
+        self.sentiment_number = 1 if (self.sentiment == 'positive') else 0
 
     # Remove pattern
 
@@ -46,8 +47,7 @@ class DataProcessor:
         tokenized = nltk.word_tokenize(fourth_processed)
         english_stopwords = nltk.corpus.stopwords.words('english')
         removed_stopwords = self.__remove_stop_words(tokenized, english_stopwords)
-        string = self.__list_to_string(removed_stopwords)
-        print(string)
+        self.processed_data = self.__list_to_string(removed_stopwords)
 
 
 # Read CSV data
@@ -69,11 +69,24 @@ dictionary = read_data('IMDB Dataset.csv')
 
 # Cleansing
 
+
+result_file_name = 'result.csv'
+
+if os.path.exists(result_file_name):
+  os.remove(result_file_name)
+
+
 iterator = iter(dictionary.items())
-for i in range(4):
-    keyValue = next(iterator)
-    processor = DataProcessor(keyValue[0], keyValue[1])
-    processor.process_data()
+
+with open(result_file_name, mode='+w') as result_file:
+    result_writer = csv.writer(result_file, delimiter=',')
+
+    for i in range(4):
+        keyValue = next(iterator)
+        processor = DataProcessor(keyValue[0], keyValue[1])
+        processor.process_data()
+        result_writer.writerow([processor.sentiment_number, processor.processed_data])
+
 
 # for key in dictionary:
 #     # value is positive or negative

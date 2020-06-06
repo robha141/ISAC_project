@@ -9,7 +9,7 @@ ISAC_project.pyproj
 
 # Data
 
-IMDB Dataset.csv
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
