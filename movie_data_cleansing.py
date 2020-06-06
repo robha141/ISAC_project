@@ -78,7 +78,7 @@ if os.path.exists(result_file_name):
 
 iterator = iter(dictionary.items())
 
-with open(result_file_name, mode='+w') as result_file:
+with open(result_file_name, mode='+w', newline='') as result_file:
     result_writer = csv.writer(result_file, delimiter=',')
 
     for i in range(4):
