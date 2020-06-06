@@ -2,6 +2,7 @@ import csv
 import re
 
 
+
 class DataProcessor:
 
     def __init__(self, review, sentiment):
@@ -16,7 +17,7 @@ class DataProcessor:
 
     # Remove pattern
 
-    def __remove_re_pattern(self, text, pattern):
+    def __remove_regex_pattern(self, text, pattern):
         pattern = re.compile(pattern)
         return re.sub(pattern, '', text)
 
@@ -28,11 +29,12 @@ class DataProcessor:
         # key to lowercase
         first_processed = self.review.lower()
         # Remove html tags
-        second_processed = self.__remove_re_pattern(first_processed, '<.*?>')
+        second_processed = self.__remove_regex_pattern(first_processed, '<.*?>')
         # Remove punctuation
-        third_processed = self.__remove_re_pattern(second_processed, '[^\w\s]')
-        # Remove stopwords
-        print(third_processed)
+        third_processed = self.__remove_regex_pattern(second_processed, '[^\w\s]')
+        # Remove numbers
+        fourth_processed = self.__remove_regex_pattern(third_processed, '\w*\d\w*')
+        print(fourth_processed)
 
 
 # Read CSV data
