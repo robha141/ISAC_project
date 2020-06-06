@@ -69,19 +69,18 @@ dictionary = read_data('IMDB Dataset.csv')
 
 # Cleansing
 
-
 result_file_name = 'result.csv'
 
 if os.path.exists(result_file_name):
   os.remove(result_file_name)
 
-
-iterator = iter(dictionary.items())
+rows = []
+for key in dictionary:
+    processor = DataProcessor(key, dictionary[key])
+    processor.process_data()
+    processed_array = [processor.sentiment_number, processor.processed_data]
+    rows.append(processed_array)
 
 with open(result_file_name, mode='+w', newline='', encoding='utf-8') as result_file:
     result_writer = csv.writer(result_file, delimiter=',')
-
-    for key in dictionary:
-        processor = DataProcessor(key, dictionary[key])
-        processor.process_data()
-        result_writer.writerow([processor.sentiment_number, processor.processed_data])
+    result_writer.writerows(rows)
