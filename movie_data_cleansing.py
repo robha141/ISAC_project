@@ -1,6 +1,6 @@
 import csv
 import re
-
+import nltk
 
 
 class DataProcessor:
@@ -9,6 +9,7 @@ class DataProcessor:
         self.review = review
         self.sentiment = sentiment
         self.sentimentNumber = 0
+        self.processed_data = ''
 
     # update value, if positive == 1, otherwise 0
 
@@ -34,7 +35,11 @@ class DataProcessor:
         third_processed = self.__remove_regex_pattern(second_processed, '[^\w\s]')
         # Remove numbers
         fourth_processed = self.__remove_regex_pattern(third_processed, '\w*\d\w*')
-        print(fourth_processed)
+        # Tokenize processed text
+        tokenized = nltk.word_tokenize(fourth_processed)
+        english_stopwords = nltk.corpus.stopwords.words('english')
+        removed_stopwords = [word for word in tokenized if not word in english_stopwords]
+        print(removed_stopwords)
 
 
 # Read CSV data
