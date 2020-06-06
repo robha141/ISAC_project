@@ -81,9 +81,8 @@ iterator = iter(dictionary.items())
 with open(result_file_name, mode='+w', newline='') as result_file:
     result_writer = csv.writer(result_file, delimiter=',')
 
-    for i in range(4):
-        keyValue = next(iterator)
-        processor = DataProcessor(keyValue[0], keyValue[1])
+    for key in dictionary:
+        processor = DataProcessor(key, dictionary[key])
         processor.process_data()
         result_writer.writerow([processor.sentiment_number, processor.processed_data])
 
