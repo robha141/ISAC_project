@@ -42,22 +42,22 @@ class DataProcessor:
             stemmed.append(ps.stem(w))
         return stemmed
 
-	# Short words
-	def __remove_shorts(self, words):
-		no_shorts = []
-		for w in words:
-			if len(w) > 2:
-				no_shorts.append(w)
+    # Short words
+    def __remove_shorts(self, words):
+        no_shorts = []
+        for w in words:
+            if len(w) > 2:
+                no_shorts.append(w)
 
-		return no_shorts
+        return no_shorts
 
-	# Links and Web addresses
-	def __remove_links(self, words):
-		no_links = []
-		for w in words:
-			if not "www" in w:
-				no_links.append(w)
-		return no_links
+    # Links and Web addresses
+    def __remove_links(self, words):
+        no_links = []
+        for w in words:
+            if not "www" in w:
+                no_links.append(w)
+        return no_links
 
     # Cleanse and process data
 
@@ -78,13 +78,12 @@ class DataProcessor:
         tokenized = nltk.word_tokenize(fift_processed)
         english_stopwords = nltk.corpus.stopwords.words('english')
         removed_stop_words = self.__remove_stop_words(tokenized, english_stopwords)
-		# Stemming
+        # Stemming
         stemmed_words = self.__do_stemming(removed_stop_words)
-		# Deleting short words
-		no_short_words = self.__remove_shorts(stemmed_words)
-		# Deleting links
-		self.processed_data = self.__remove_links(no_short_words)
-		
+        # Deleting short words
+        no_short_words = self.__remove_shorts(stemmed_words)
+        # Deleting links
+        self.processed_data = self.__remove_links(no_short_words)
 
 
 # Read CSV data and create processors
