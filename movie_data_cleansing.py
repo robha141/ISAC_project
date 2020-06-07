@@ -3,7 +3,6 @@ import re
 import nltk
 import random
 import os
-import collections
 
 # Constants
 
@@ -81,10 +80,28 @@ def create_processors_from_file(file_name):
     return processors
 
 
+# Process data
+
+def process_data(processors):
+    chosen_processors = []
+    random.shuffle(processors)
+    all_words = set()
+    progress_printer = ProgressPrinter(NUMBER_OF_DATA_TO_PROCESS)
+
+    for i in range(NUMBER_OF_DATA_TO_PROCESS):
+        processor = processors[i]
+        chosen_processors.append(processor)
+        processor.process_data()
+        all_words.update(processor.processed_data)
+        progress_printer.iteration_performed(i, 'Data processing')
+
+    return chosen_processors, list(all_words)
+
 # Crate arff file from data
 
 def create_arff_result(processors, all_words):
     result_file_name = 'result.arff'
+
     progress_printer = ProgressPrinter(len(processors))
     print('Processors length', len(processors))
 
@@ -100,32 +117,27 @@ def create_arff_result(processors, all_words):
         for word in all_words:
             result += f'@ATTRIBUTE {word} NUMERIC\n'
 
-        result += '@ATTRIBUTE __CLASS__ { }'
-        result += '\n@DATA\n\n'
+        # Sentiment
+        result += '@ATTRIBUTE _CLASS_ {0,1}\n'
+        result += '@DATA\n'
 
         for i in range(len(processors)):
             processor = processors[i]
             for word in all_words:
                 result += '1,' if word in processor.processed_data else '0,'
-            result += '\n'
+            result += f'{processor.sentiment_number}\n'
             progress_printer.iteration_performed(i, 'Processed data written')
 
         file.write(result)
 
 
-# Processing
+# Main
 
-processors = create_processors_from_file('IMDB Dataset.csv')
-chosen_processors = []
-random.shuffle(processors)
-all_words = set()
-progress_printer = ProgressPrinter(NUMBER_OF_DATA_TO_PROCESS)
+def main():
+    processors = create_processors_from_file('IMDB Dataset.csv')
+    processors, all_words = process_data(processors)
+    create_arff_result(processors, all_words)
 
-for i in range(NUMBER_OF_DATA_TO_PROCESS):
-    processor = processors[i]
-    chosen_processors.append(processor)
-    processor.process_data()
-    all_words.update(processor.processed_data)
-    progress_printer.iteration_performed(i, 'Data processing')
 
-create_arff_result(chosen_processors, list(all_words))
+if __name__ == "__main__":
+    main()
