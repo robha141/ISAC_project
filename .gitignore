@@ -10,6 +10,7 @@ ISAC_project.pyproj
 # Data
 
 *.csv
+*.arff
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

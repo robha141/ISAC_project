@@ -7,7 +7,7 @@ import collections
 
 # Constants
 
-NUMBER_OF_DATA_TO_PROCESS = 1_000
+NUMBER_OF_DATA_TO_PROCESS = 50
 
 
 class DataProcessor:
@@ -55,12 +55,13 @@ class DataProcessor:
 
 class ProgressPrinter:
 
-    def __init__(self):
+    def __init__(self, total_number_of_data):
         self.progress = 0
         self.last_progress = 0
+        self.total_number_of_data = total_number_of_data
 
     def iteration_performed(self, iteration, message):
-        self.progress = round((iteration / NUMBER_OF_DATA_TO_PROCESS) * 100)
+        self.progress = round((iteration / self.total_number_of_data) * 100)
         if self.progress != self.last_progress:
             self.last_progress = self.progress
             print(message, self.last_progress, '%')
@@ -80,8 +81,12 @@ def create_processors_from_file(file_name):
     return processors
 
 
+# Crate arff file from data
+
 def create_arff_result(processors, all_words):
     result_file_name = 'result.arff'
+    progress_printer = ProgressPrinter(len(processors))
+    print('Processors length', len(processors))
 
     all_words.sort()
 
@@ -90,24 +95,37 @@ def create_arff_result(processors, all_words):
         print('Removed old arff file')
 
     with open(result_file_name, 'w+', encoding='utf8') as file:
-        file.write('@RELATION data\n\n')
+        result = ''
+        result += '@RELATION data\n\n'
         for word in all_words:
-            file.write(f'@ATTRIBUTE {word} NUMERIC\n')
-        file.close()
+            result += f'@ATTRIBUTE {word} NUMERIC\n'
+
+        result += '@ATTRIBUTE __CLASS__ { }'
+        result += '\n@DATA\n\n'
+
+        for i in range(len(processors)):
+            processor = processors[i]
+            for word in all_words:
+                result += '1,' if word in processor.processed_data else '0,'
+            result += '\n'
+            progress_printer.iteration_performed(i, 'Processed data written')
+
+        file.write(result)
 
 
 # Processing
 
-
 processors = create_processors_from_file('IMDB Dataset.csv')
+chosen_processors = []
 random.shuffle(processors)
 all_words = set()
-progress_printer = ProgressPrinter()
+progress_printer = ProgressPrinter(NUMBER_OF_DATA_TO_PROCESS)
 
 for i in range(NUMBER_OF_DATA_TO_PROCESS):
     processor = processors[i]
+    chosen_processors.append(processor)
     processor.process_data()
     all_words.update(processor.processed_data)
     progress_printer.iteration_performed(i, 'Data processing')
 
-create_arff_result(processors, list(all_words))
+create_arff_result(chosen_processors, list(all_words))
