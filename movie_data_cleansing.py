@@ -3,6 +3,7 @@ import re
 import nltk
 import random
 import os
+from nltk.stem import PorterStemmer
 
 # Constants
 
@@ -31,6 +32,14 @@ class DataProcessor:
     def __remove_stop_words(self, tokenized_text, stopwords):
         return [word for word in tokenized_text if not word in stopwords]
 
+    # Stemming
+    def __do_stemming(self, words):
+        ps = PorterStemmer()
+        stemmed = []
+        for w in words:
+            stemmed.append(ps.stem(w))
+        return stemmed
+
     # Cleanse and process data
 
     def process_data(self):
@@ -49,7 +58,8 @@ class DataProcessor:
         # Tokenize processed text
         tokenized = nltk.word_tokenize(fift_processed)
         english_stopwords = nltk.corpus.stopwords.words('english')
-        self.processed_data = self.__remove_stop_words(tokenized, english_stopwords)
+        removed_stop_words = self.__remove_stop_words(tokenized, english_stopwords)
+        self.processed_data = self.__do_stemming(removed_stop_words)
 
 
 class ProgressPrinter:
