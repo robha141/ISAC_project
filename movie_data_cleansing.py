@@ -1,7 +1,13 @@
 import csv
 import re
 import nltk
+import random
 import os
+import collections
+
+# Constants
+
+NUMBER_OF_DATA_TO_PROCESS = 5_000
 
 
 class DataProcessor:
@@ -10,7 +16,7 @@ class DataProcessor:
         self.review = review
         self.sentiment = sentiment
         self.sentiment_number = 0
-        self.processed_data = ''
+        self.processed_data = []
 
     # update value, if positive == 1, otherwise 0
 
@@ -26,10 +32,6 @@ class DataProcessor:
     def __remove_stop_words(self, tokenized_text, stopwords):
         return [word for word in tokenized_text if not word in stopwords]
 
-    def __list_to_string(self, s):
-        str = " "
-        return str.join(s)
-
     # Cleanse and process data
 
     def process_data(self):
@@ -43,44 +45,39 @@ class DataProcessor:
         third_processed = self.__remove_regex_pattern(second_processed, '[^\w\s]')
         # Remove numbers
         fourth_processed = self.__remove_regex_pattern(third_processed, '\w*\d\w*')
+        # Remove _
+        fift_processed = self.__remove_regex_pattern(fourth_processed, '[_]')
         # Tokenize processed text
-        tokenized = nltk.word_tokenize(fourth_processed)
+        tokenized = nltk.word_tokenize(fift_processed)
         english_stopwords = nltk.corpus.stopwords.words('english')
-        removed_stopwords = self.__remove_stop_words(tokenized, english_stopwords)
-        self.processed_data = self.__list_to_string(removed_stopwords)
+        self.processed_data = self.__remove_stop_words(tokenized, english_stopwords)
 
 
-# Read CSV data
+# Read CSV data and create processors
 
-def read_data(file_name):
-    result = {}
+def create_processors_from_file(file_name):
+    processors = []
     with open(file_name, mode='r', encoding='utf8') as csv_file:
         data_reader = csv.reader(csv_file)
         # Skip headers
         next(data_reader)
         for row in data_reader:
-            key = row[0]
-            value = row[1]
-            result[key] = value
-    return result
+            processor = DataProcessor(review=row[0], sentiment=row[1])
+            processors.append(processor)
+    return processors
 
 
-dictionary = read_data('IMDB Dataset.csv')
+# Processing
 
-# Cleansing
+processors = create_processors_from_file('IMDB Dataset.csv')
+random.shuffle(processors)
+all_words = set()
 
-result_file_name = 'result.csv'
-
-if os.path.exists(result_file_name):
-  os.remove(result_file_name)
-
-rows = []
-for key in dictionary:
-    processor = DataProcessor(key, dictionary[key])
+for i in range(NUMBER_OF_DATA_TO_PROCESS):
+    processor = processors[i]
     processor.process_data()
-    processed_array = [processor.sentiment_number, processor.processed_data]
-    rows.append(processed_array)
+    all_words.update(processor.processed_data)
 
-with open(result_file_name, mode='+w', newline='', encoding='utf-8') as result_file:
-    result_writer = csv.writer(result_file, delimiter=',')
-    result_writer.writerows(rows)
+words_array = list(all_words)
+words_array.sort()
+print(words_array)
