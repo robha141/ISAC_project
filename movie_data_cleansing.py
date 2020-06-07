@@ -6,7 +6,7 @@ import os
 
 # Constants
 
-NUMBER_OF_DATA_TO_PROCESS = 50
+NUMBER_OF_DATA_TO_PROCESS = 1_000
 
 
 class DataProcessor:
@@ -70,6 +70,7 @@ class ProgressPrinter:
 
 def create_processors_from_file(file_name):
     processors = []
+
     with open(file_name, mode='r', encoding='utf8') as csv_file:
         data_reader = csv.reader(csv_file)
         # Skip headers
@@ -80,15 +81,37 @@ def create_processors_from_file(file_name):
     return processors
 
 
+# Balance data
+
+def balance_data(processors):
+    number_of_processors = NUMBER_OF_DATA_TO_PROCESS / 2
+    positive_processors_count = 0
+    negative_processors_count = 0
+    balanced_processors = []
+
+    for processor in processors:
+        if processor.sentiment == 'positive' and positive_processors_count < number_of_processors:
+            positive_processors_count += 1
+            balanced_processors.append(processor)
+        elif negative_processors_count < number_of_processors:
+            negative_processors_count += 1
+            balanced_processors.append(processor)
+        else:
+            break
+
+    print(positive_processors_count, negative_processors_count)
+    return balanced_processors
+
+
 # Process data
+
 
 def process_data(processors):
     chosen_processors = []
-    random.shuffle(processors)
     all_words = set()
     progress_printer = ProgressPrinter(NUMBER_OF_DATA_TO_PROCESS)
 
-    for i in range(NUMBER_OF_DATA_TO_PROCESS):
+    for i in range(len(processors)):
         processor = processors[i]
         chosen_processors.append(processor)
         processor.process_data()
@@ -135,6 +158,8 @@ def create_arff_result(processors, all_words):
 
 def main():
     processors = create_processors_from_file('IMDB Dataset.csv')
+    random.shuffle(processors)
+    processors = balance_data(processors)
     processors, all_words = process_data(processors)
     create_arff_result(processors, all_words)
 
