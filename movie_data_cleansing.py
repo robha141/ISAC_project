@@ -4,6 +4,8 @@ import nltk
 import random
 import os
 import collections
+from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
 
 # Constants
 
@@ -32,6 +34,14 @@ class DataProcessor:
     def __remove_stop_words(self, tokenized_text, stopwords):
         return [word for word in tokenized_text if not word in stopwords]
 
+    # Stemming
+    def __do_stemming(self, words):
+        ps = PorterStemmer()
+        stemmed = []
+        for w in words:
+            stemmed.append(ps.stem(w))
+        return stemmed
+
     # Cleanse and process data
 
     def process_data(self):
@@ -50,7 +60,8 @@ class DataProcessor:
         # Tokenize processed text
         tokenized = nltk.word_tokenize(fift_processed)
         english_stopwords = nltk.corpus.stopwords.words('english')
-        self.processed_data = self.__remove_stop_words(tokenized, english_stopwords)
+        removed_stop_words = self.__remove_stop_words(tokenized, english_stopwords)
+        self.processed_data = self.__do_stemming(removed_stop_words)
 
 
 # Read CSV data and create processors
@@ -79,5 +90,6 @@ for i in range(NUMBER_OF_DATA_TO_PROCESS):
     all_words.update(processor.processed_data)
 
 words_array = list(all_words)
+
 words_array.sort()
 print(words_array)
