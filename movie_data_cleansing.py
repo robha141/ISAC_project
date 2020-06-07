@@ -7,7 +7,7 @@ import collections
 
 # Constants
 
-NUMBER_OF_DATA_TO_PROCESS = 5_000
+NUMBER_OF_DATA_TO_PROCESS = 1_000
 
 
 class DataProcessor:
@@ -53,6 +53,19 @@ class DataProcessor:
         self.processed_data = self.__remove_stop_words(tokenized, english_stopwords)
 
 
+class ProgressPrinter:
+
+    def __init__(self):
+        self.progress = 0
+        self.last_progress = 0
+
+    def iteration_performed(self, iteration, message):
+        self.progress = round((iteration / NUMBER_OF_DATA_TO_PROCESS) * 100)
+        if self.progress != self.last_progress:
+            self.last_progress = self.progress
+            print(message, self.last_progress, '%')
+
+
 # Read CSV data and create processors
 
 def create_processors_from_file(file_name):
@@ -67,17 +80,34 @@ def create_processors_from_file(file_name):
     return processors
 
 
+def create_arff_result(processors, all_words):
+    result_file_name = 'result.arff'
+
+    all_words.sort()
+
+    if os.path.exists(result_file_name):
+        os.remove(result_file_name)
+        print('Removed old arff file')
+
+    with open(result_file_name, 'w+', encoding='utf8') as file:
+        file.write('@RELATION data\n\n')
+        for word in all_words:
+            file.write(f'@ATTRIBUTE {word} NUMERIC\n')
+        file.close()
+
+
 # Processing
+
 
 processors = create_processors_from_file('IMDB Dataset.csv')
 random.shuffle(processors)
 all_words = set()
+progress_printer = ProgressPrinter()
 
 for i in range(NUMBER_OF_DATA_TO_PROCESS):
     processor = processors[i]
     processor.process_data()
     all_words.update(processor.processed_data)
+    progress_printer.iteration_performed(i, 'Data processing')
 
-words_array = list(all_words)
-words_array.sort()
-print(words_array)
+create_arff_result(processors, list(all_words))
